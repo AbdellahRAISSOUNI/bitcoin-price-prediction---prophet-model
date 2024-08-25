@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoFuture - Advanced Bitcoin Price Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="scrollbar-custom">
+    <header>
+        <nav>
+            <div class="logo">CryptoFuture</div>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#predict">Predict</a></li>
+                <li><a href="#historical">Historical Data</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+            <button id="darkModeToggle" class="btn-icon" aria-label="Toggle Dark Mode"><i class="fas fa-moon"></i></button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="section" data-aos="fade-up">
+            <div class="hero gradient-border">
+                <h1>Bitcoin Price Prediction Application</h1>
+                <p>An In-Depth Examination of Cryptocurrency Forecasting Using Advanced Artificial Intelligence Techniques</p>
+                <div class="current-price tooltip">
+                    <i class="fab fa-bitcoin"></i>
+                    Current price: <span id="price">Loading...</span>
+                    <span class="tooltiptext">Updated every 60 seconds</span>
+                </div>
+            </div>
+            <div id="price-chart" class="chart"></div>
+        </section>
+
+        <section id="predict" class="section" data-aos="fade-up">
+            <div class="card prediction-form">
+                <h2 class="card-header">Predict Bitcoin's Future Price</h2>
+                {% if error %}
+                <div class="alert">
+                    <span>{{ error }}</span>
+                    <i class="fas fa-times" id="closeAlert"></i>
+                </div>
+                {% endif %}
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="days_ahead">Number of days to predict:</label>
+                        <input type="number" id="days_ahead" name="days_ahead" min="1" max="365" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Prediction</button>
+                </form>
+            </div>
+
+            {% if prediction is not none %}
+            <div class="card prediction-results">
+                <h2 class="card-header">Prediction Results</h2>
+                <div id="prediction-chart" class="chart"></div>
+                <div class="table-container scrollbar-custom">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Predicted Price</th>
+                                <th>Lower Bound</th>
+                                <th>Upper Bound</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for index, row in prediction.iterrows() %}
+                            <tr>
+                                <td>{{ index.strftime('%Y-%m-%d') }}</td>
+                                <td>${{ "%.2f"|format(row['Predicted Price']) }}</td>
+                                <td>${{ "%.2f"|format(row['Lower Bound']) }}</td>
+                                <td>${{ "%.2f"|format(row['Upper Bound']) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+
+        <section id="historical" class="section" data-aos="fade-up">
+            <div class="card">
+                <h2 class="card-header">Historical Bitcoin Data</h2>
+                <div class="chart-controls">
+                    <div class="btn-group">
+                        <button id="togglePrice" class="btn btn-outline">Toggle Price</button>
+                        <button id="toggleVolume" class="btn btn-outline">Toggle Volume</button>
+                    </div>
+                    <select id="timeRange" class="select-styled">
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="365">Last year</option>
+                        <option value="all">All time</option>
+                    </select>
+                </div>
+                <div id="historical-chart" class="chart"></div>
+            </div>
+        </section>
+
+        <section id="about" class="section" data-aos="fade-up">
+            <div class="card">
+                <h2 class="card-header">About Our Predictive Model</h2>
+                <p>Our predictive model employs advanced machine learning techniques to analyze and forecast Bitcoin price movements. Utilizing the <strong>Prophet library</strong>, developed by Facebook, our model integrates comprehensive historical data with current market trends to deliver accurate predictions.</p>
+                <p><strong>Methodology:</strong></p>
+                <ul>
+                    <li><strong>Data Acquisition:</strong> Historical Bitcoin price and volume data is sourced through Yahoo Finance, covering a three-year period to ensure a robust dataset.</li>
+                    <li><strong>Data Preparation:</strong> The data is preprocessed to match the model’s requirements, including column renaming and timestamp formatting.</li>
+                    <li><strong>Model Training:</strong> The Prophet model is configured with daily seasonality and incorporates trading volume as an additional regressor to capture underlying patterns and enhance predictive accuracy.</li>
+                    <li><strong>Forecasting:</strong> The model generates forecasts by extending historical data into the future and includes recent trading volume to refine predictions.</li>
+                    <li><strong>Continuous Improvement:</strong> The model is retrained daily to reflect the latest market conditions and maintain accuracy.</li>
+                </ul>
+                <p>While our model provides valuable insights into potential future price movements, it is important to note that predictions are inherently uncertain and subject to market volatility. The insights generated are intended to assist in decision-making rather than provide definitive outcomes.</p>
+                
+                <h3>Key Features:</h3>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-robot feature-icon"></i>
+                        <h4 class="feature-title">AI-Powered</h4>
+                        <p class="feature-description">Uses Prophet, a powerful forecasting tool developed by Facebook</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line feature-icon"></i>
+                        <h4 class="feature-title">Comprehensive Data</h4>
+                        <p class="feature-description">Incorporates both price and volume data for more accurate predictions</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-balance-scale feature-icon"></i>
+                        <h4 class="feature-title">Risk Assessment</h4>
+                        <p class="feature-description">Provides upper and lower bounds to account for market volatility</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-sync-alt feature-icon"></i>
+                        <h4 class="feature-title">Daily Updates</h4>
+                        <p class="feature-description">Updates daily with the latest market data</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 CryptoFuture. All rights reserved.</p>
+        <div class="social-links">
+            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
